@@ -1,0 +1,22 @@
+@import "tailwindcss";
+
+@layer utilities {
+  .animate-in {
+    animation-name: animate-in;
+    animation-duration: 300ms;
+    animation-fill-mode: both;
+  }
+  .fade-in {
+    --tw-enter-opacity: 0;
+    animation-name: enter;
+  }
+}
+
+@keyframes enter {
+  from {
+    opacity: var(--tw-enter-opacity, 1);
+  }
+  to {
+    opacity: 1;
+  }
+}
