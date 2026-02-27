@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { X } from 'lucide-react';
+import confetti from 'canvas-confetti';
 
 type GameState = 'idle' | 'playing' | 'won' | 'lost';
 
@@ -113,6 +114,14 @@ export default function PenaltyGame() {
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
     setShowBall(false);
     setGameState('won');
+    
+    // Trigger celebratory confetti
+    confetti({
+      particleCount: 150,
+      spread: 70,
+      origin: { y: 0.6 },
+      colors: ['#FFD700', '#10B981', '#FFFFFF']
+    });
   };
 
   const resetGame = () => {

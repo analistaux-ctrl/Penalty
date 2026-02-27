@@ -264,6 +264,16 @@ const SHOPIFY_CODE = `<!-- WIDGET PENALTY SHOOTOUT PARA SHOPIFY -->
       ball.style.display = 'none';
       container.classList.remove('cursor-glove');
       winScreen.style.display = 'flex';
+      
+      // Trigger celebratory confetti if library is loaded
+      if (typeof confetti === 'function') {
+        confetti({
+          particleCount: 150,
+          spread: 70,
+          origin: { y: 0.6 },
+          colors: ['#FFD700', '#10B981', '#FFFFFF']
+        });
+      }
     };
 
     ball.addEventListener('mousedown', catchBall);
@@ -370,6 +380,7 @@ const SHOPIFY_CODE = `<!-- WIDGET PENALTY SHOOTOUT PARA SHOPIFY -->
     });
   }
 </script>
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 `;
 
 export default function ShopifyCode({ onClose }: { onClose: () => void }) {
