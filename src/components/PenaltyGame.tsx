@@ -173,9 +173,9 @@ export default function PenaltyGame() {
       {isOpen && (
         <div className="fixed inset-0 bg-black/80 z-[100] flex items-center justify-center md:p-4 backdrop-blur-sm">
           <div 
-            className="w-full h-full md:h-auto md:max-w-4xl md:aspect-[9/16] bg-zinc-900 md:rounded-2xl overflow-hidden relative shadow-2xl md:border border-zinc-800 mx-auto"
+            className="w-full h-full md:h-[90vh] md:max-h-[800px] md:w-auto md:aspect-[9/16] bg-zinc-900 md:rounded-2xl overflow-hidden relative shadow-2xl md:border border-zinc-800 mx-auto"
             style={{
-              backgroundImage: `url('https://images.unsplash.com/photo-1553152531-79813ce4c771?auto=format&fit=crop&q=80&w=800')`, // Fallback placeholder
+              backgroundImage: `url('https://cdn.shopify.com/s/files/1/0848/8520/9384/files/cancha_atenuada.png?v=1771888750')`, // Fallback placeholder
               backgroundSize: 'cover',
               backgroundPosition: 'center',
               cursor: gameState === 'playing' ? `url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" style="font-size:48px"><text y="40">🧤</text></svg>') 24 24, auto` : 'default'

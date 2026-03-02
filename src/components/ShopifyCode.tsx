@@ -52,9 +52,9 @@ const SHOPIFY_CODE = `<!-- WIDGET PENALTY SHOOTOUT PARA SHOPIFY -->
   }
   @media (min-width: 768px) {
     #penalty-game-container {
-      width: 90%;
-      height: auto;
-      max-width: 500px;
+      height: 90vh;
+      max-height: 800px;
+      width: auto;
       aspect-ratio: 9/16;
       border-radius: 16px;
     }
