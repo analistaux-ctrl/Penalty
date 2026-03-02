@@ -2,14 +2,28 @@ import React, { useState, useRef } from 'react';
 import { X } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
-type GameState = 'idle' | 'playing' | 'won' | 'lost';
+type GameState = 'idle' | 'countdown' | 'playing' | 'won' | 'lost';
 
 export default function PenaltyGame() {
   const [isOpen, setIsOpen] = useState(false);
   const [gameState, setGameState] = useState<GameState>('idle');
   const [ballPos, setBallPos] = useState({ x: 50, y: 90, scale: 1, rotation: 0 });
   const [showBall, setShowBall] = useState(false);
+  const [countdownText, setCountdownText] = useState('');
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const countdownTimeouts = useRef<NodeJS.Timeout[]>([]);
+
+  const handleStartClick = () => {
+    setGameState('countdown');
+    setCountdownText('3');
+    
+    countdownTimeouts.current.push(setTimeout(() => setCountdownText('2'), 1000));
+    countdownTimeouts.current.push(setTimeout(() => setCountdownText('1'), 2000));
+    countdownTimeouts.current.push(setTimeout(() => setCountdownText('¡Atrápalo!'), 3000));
+    countdownTimeouts.current.push(setTimeout(() => {
+      startGame();
+    }, 4000));
+  };
 
   const startGame = () => {
     setGameState('playing');
@@ -69,7 +83,7 @@ export default function PenaltyGame() {
         
         if (!isMobile) {
           targetX = Math.floor(Math.random() * 60) + 20;
-          targetY = Math.floor(Math.random() * 30) + 20;
+          targetY = Math.floor(Math.random() * 15) + 5; // Always finish in the upper part
         }
 
         const rotation = bounceCount * 720;
@@ -128,6 +142,8 @@ export default function PenaltyGame() {
     setGameState('idle');
     setShowBall(false);
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    countdownTimeouts.current.forEach(clearTimeout);
+    countdownTimeouts.current = [];
   };
 
   const closeGame = () => {
@@ -172,20 +188,34 @@ export default function PenaltyGame() {
               <X className="w-6 h-6" />
             </button>
 
-            {/* Start Screen */}
-            {gameState === 'idle' && (
-              <div className="absolute inset-0 bg-black/40 flex flex-col items-center justify-center text-white p-4 md:p-6 text-center backdrop-blur-sm z-10">
-                <span className="text-5xl md:text-6xl mb-2 md:mb-4">🧤</span>
-                <h2 className="text-3xl md:text-4xl font-black mb-2 text-yellow-400 uppercase italic">¡Ataja el penal!</h2>
-                <p className="text-base md:text-xl mb-6 md:mb-8 max-w-md">
-                  Atrapa el balón haciendo clic sobre él antes de que entre a la portería y gana un <strong className="text-yellow-400">15% de descuento</strong>.
-                </p>
-                <button 
-                  onClick={startGame}
-                  className="bg-yellow-400 text-black px-6 md:px-8 py-3 rounded-full font-bold text-base md:text-lg hover:bg-yellow-300 transition-colors uppercase tracking-wider"
-                >
-                  Jugar ahora
-                </button>
+            {/* Start Screen & Countdown */}
+            {(gameState === 'idle' || gameState === 'countdown') && (
+              <div className={`absolute inset-0 flex flex-col items-center justify-center text-white p-4 md:p-6 text-center backdrop-blur-sm z-10 transition-colors duration-500 ${gameState === 'countdown' ? 'bg-black/20' : 'bg-black/40'}`}>
+                
+                <span className={`text-5xl md:text-6xl mb-2 md:mb-4 transition-all duration-1000 ease-in-out ${gameState === 'countdown' ? 'translate-y-[35vh] scale-75 opacity-50' : ''}`}>
+                  🧤
+                </span>
+                
+                <div className={`transition-all duration-500 flex flex-col items-center ${gameState === 'countdown' ? 'opacity-0 translate-y-10 pointer-events-none' : 'opacity-100'}`}>
+                  <h2 className="text-3xl md:text-4xl font-black mb-2 text-yellow-400 uppercase italic">¡Ataja el penal!</h2>
+                  <p className="text-base md:text-xl mb-6 md:mb-8 max-w-md">
+                    Atrapa el balón haciendo clic sobre él antes de que entre a la portería y gana un <strong className="text-yellow-400">15% de descuento</strong>.
+                  </p>
+                  <button 
+                    onClick={handleStartClick}
+                    className="bg-yellow-400 text-black px-6 md:px-8 py-3 rounded-full font-bold text-base md:text-lg hover:bg-yellow-300 transition-colors uppercase tracking-wider"
+                  >
+                    Jugar ahora
+                  </button>
+                </div>
+
+                {gameState === 'countdown' && (
+                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                    <span className="text-7xl md:text-8xl font-black text-white italic animate-pop-in drop-shadow-[0_0_20px_rgba(250,204,21,0.8)]" key={countdownText}>
+                      {countdownText}
+                    </span>
+                  </div>
+                )}
               </div>
             )}
 

@@ -171,6 +171,53 @@ const SHOPIFY_CODE = `<!-- WIDGET PENALTY SHOOTOUT PARA SHOPIFY -->
     width: 100%;
     max-width: 300px;
   }
+  
+  /* Countdown Styles */
+  #countdown-display {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 80px;
+    font-weight: 900;
+    color: white;
+    font-style: italic;
+    text-shadow: 0 0 20px rgba(250,204,21,0.8);
+    display: none;
+    z-index: 20;
+    pointer-events: none;
+  }
+  
+  @keyframes popIn {
+    0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
+    50% { transform: translate(-50%, -50%) scale(1.2); opacity: 1; }
+    100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+  }
+  
+  .start-content-wrapper {
+    transition: all 0.5s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .start-content-hidden {
+    opacity: 0;
+    transform: translateY(40px);
+    pointer-events: none;
+  }
+  
+  #gloves-icon {
+    font-size: 60px;
+    margin-bottom: 10px;
+    transition: all 1s ease-in-out;
+  }
+  
+  .gloves-down {
+    transform: translateY(35vh) scale(0.75);
+    opacity: 0.5;
+  }
+  
   @media (min-width: 768px) {
     .game-overlay { padding: 20px; }
     .game-overlay h2 { font-size: 36px; margin-bottom: 10px; }
@@ -190,12 +237,16 @@ const SHOPIFY_CODE = `<!-- WIDGET PENALTY SHOOTOUT PARA SHOPIFY -->
   <div id="penalty-game-container">
     <div class="close-btn" id="close-modal">&times;</div>
     
-    <div id="start-screen" class="game-overlay bg-dark">
-      <div style="font-size: 60px; margin-bottom: 10px;">🧤</div>
-      <h2>¡Ataja el penal!</h2>
-      <p>Atrapa el balón haciendo clic sobre él antes de que entre a la portería y gana un <strong>15% de descuento</strong>.</p>
-      <button class="game-btn" id="start-game-btn">Jugar ahora</button>
+    <div id="start-screen" class="game-overlay bg-dark" style="transition: background-color 0.5s ease;">
+      <div id="gloves-icon">🧤</div>
+      <div id="start-content-wrapper" class="start-content-wrapper">
+        <h2>¡Ataja el penal!</h2>
+        <p>Atrapa el balón haciendo clic sobre él antes de que entre a la portería y gana un <strong>15% de descuento</strong>.</p>
+        <button class="game-btn" id="start-game-btn">Jugar ahora</button>
+      </div>
     </div>
+
+    <div id="countdown-display"></div>
 
     <div id="soccer-ball">⚽</div>
 
@@ -239,8 +290,12 @@ const SHOPIFY_CODE = `<!-- WIDGET PENALTY SHOOTOUT PARA SHOPIFY -->
     const startScreen = document.getElementById('start-screen');
     const winScreen = document.getElementById('win-screen');
     const loseScreen = document.getElementById('lose-screen');
+    const countdownEl = document.getElementById('countdown-display');
+    const glovesIcon = document.getElementById('gloves-icon');
+    const startContentWrapper = document.getElementById('start-content-wrapper');
     
     let gameTimeout;
+    let countdownTimeouts = [];
     let isPlaying = false;
 
     widgetBtn.addEventListener('click', () => {
@@ -252,8 +307,45 @@ const SHOPIFY_CODE = `<!-- WIDGET PENALTY SHOOTOUT PARA SHOPIFY -->
       resetGame();
     });
 
-    startBtn.addEventListener('click', startGame);
-    retryBtn.addEventListener('click', startGame);
+    startBtn.addEventListener('click', handleStartClick);
+    retryBtn.addEventListener('click', handleStartClick);
+
+    function handleStartClick() {
+      // Start countdown animation
+      startContentWrapper.classList.add('start-content-hidden');
+      glovesIcon.classList.add('gloves-down');
+      startScreen.style.backgroundColor = 'rgba(0,0,0,0.2)';
+      
+      countdownEl.style.display = 'block';
+      countdownEl.innerText = '3';
+      countdownEl.style.animation = 'popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards';
+      
+      countdownTimeouts.push(setTimeout(() => {
+        countdownEl.style.animation = 'none';
+        void countdownEl.offsetWidth; // trigger reflow
+        countdownEl.style.animation = 'popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards';
+        countdownEl.innerText = '2';
+      }, 1000));
+      
+      countdownTimeouts.push(setTimeout(() => {
+        countdownEl.style.animation = 'none';
+        void countdownEl.offsetWidth;
+        countdownEl.style.animation = 'popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards';
+        countdownEl.innerText = '1';
+      }, 2000));
+      
+      countdownTimeouts.push(setTimeout(() => {
+        countdownEl.style.animation = 'none';
+        void countdownEl.offsetWidth;
+        countdownEl.style.animation = 'popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards';
+        countdownEl.innerText = '¡Atrápalo!';
+      }, 3000));
+      
+      countdownTimeouts.push(setTimeout(() => {
+        countdownEl.style.display = 'none';
+        startGame();
+      }, 4000));
+    }
 
     const catchBall = (e) => {
       if(!isPlaying) return;
@@ -281,6 +373,17 @@ const SHOPIFY_CODE = `<!-- WIDGET PENALTY SHOOTOUT PARA SHOPIFY -->
 
     function resetGame() {
       isPlaying = false;
+      
+      // Clear countdown timeouts
+      countdownTimeouts.forEach(clearTimeout);
+      countdownTimeouts = [];
+      
+      // Reset UI elements
+      startContentWrapper.classList.remove('start-content-hidden');
+      glovesIcon.classList.remove('gloves-down');
+      startScreen.style.backgroundColor = 'rgba(0,0,0,0.8)';
+      countdownEl.style.display = 'none';
+      
       startScreen.style.display = 'flex';
       winScreen.style.display = 'none';
       loseScreen.style.display = 'none';
@@ -332,7 +435,7 @@ const SHOPIFY_CODE = `<!-- WIDGET PENALTY SHOOTOUT PARA SHOPIFY -->
           
           if (!isMobile) {
             targetX = Math.floor(Math.random() * 60) + 20;
-            targetY = Math.floor(Math.random() * 30) + 20;
+            targetY = Math.floor(Math.random() * 15) + 5; // Always finish in the upper part
           }
 
           const rotation = bounceCount * 720;
